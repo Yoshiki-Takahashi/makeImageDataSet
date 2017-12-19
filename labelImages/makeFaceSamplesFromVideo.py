@@ -28,6 +28,7 @@ import os
 import threading
 from Queue import Queue
 from ast import literal_eval
+import argparse
 
 # detection network accept a fixed size image
 #width = 240
@@ -628,51 +629,24 @@ class App:
             print('counters #3: ' + str(self.counters[2]))
 
 def main():
-    import sys
-    print(sys.argv)
-    try:
-        video_src = sys.argv[1]
-    except:
-        video_src = 0
+    parser = argparse.ArgumentParser(description='Labeling names to image frame from video.')
+    parser.add_argument('video_src',       type=str, help='video file path')
+    parser.add_argument('--fps',           type=int, default=10)
+    parser.add_argument('--every_x_frame', type=int, default=1)
+    parser.add_argument('--global_scale',  type=float, default=0.5)
+    parser.add_argument('--output_folder', type=str, default='member/')
+    parser.add_argument('--rotation',      type=int, default=0)
+    parser.add_argument('--track_window',  type=str, default=None)
+    parser.add_argument('--skip_to_frame',    type=int, default=0)
+    args = parser.parse_args()
 
     try:
-        every_x_frame = 1
-        if ':' in sys.argv[2]:
-            splits = sys.argv[2].split(':')
-            target_fps = int(splits[0])
-            every_x_frame = int(splits[1]) 
-        else:
-            target_fps = int(sys.argv[2])
-    except:
-        target_fps = 10
-
-    try:
-        global_scale = float(sys.argv[3])
-    except:
-        global_scale = 0.5
-
-    try:
-        output_folder = sys.argv[4]
-    except:
-        output_folder = 'member/'
-
-    try:
-        rotation = int(sys.argv[5])
-    except:
-        rotation = 0
-
-    try:
-        track_window = literal_eval(sys.argv[6])
+        track_window = literal_eval(args.track_window)
     except:
         track_window = None
 
-    try:
-        skip_to_frame = int(sys.argv[7])
-    except:
-        skip_to_frame = 0
-
     #print __doc__
-    App(video_src, target_fps, every_x_frame, global_scale, output_folder, rotation, track_window, skip_to_frame).run()
+    App(args.video_src, args.fps, args.every_x_frame, args.global_scale, args.output_folder, args.rotation, track_window, args.skip_to_frame).run()
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
